@@ -15,8 +15,8 @@ public class View : MonoBehaviour {
     [Range(0, 360)]
     [SerializeField] int angle;
 
-    [Range(1, 10)]
-    [SerializeField] int meshDetail;
+    [Range(.1f, 1)]
+    [SerializeField] float meshDetail;
     [Range(1, 10)]
     [SerializeField] int edgeDetectionIterations;
 
@@ -47,24 +47,20 @@ public class View : MonoBehaviour {
 
         for (int i = 0; i <= rayAmount; i++) {
             float a = -(float)angle / 2 + ((float)angle / rayAmount) * i;
-            viewPointInfo info = new viewPointInfo(a, null, GetDirection(a) * viewRadius);
-            if (Physics.Raycast(transform.position, GetDirection(a), out RaycastHit hit, viewRadius, obstacle)) {
-                info = new viewPointInfo(a, hit.transform, hit.point);
+            viewPointInfo info = ViewCast(a);
 
-                if (i > 0 && info.HitTransform != prevInfo.HitTransform) {
-                    edgeInfo e = DetectEdge(prevInfo, info);
-                    if (e.MinPoint != Vector3.zero) {
-                        viewPoints.Add(e.MinPoint);
-                    }
-                    if (e.MaxPoint != Vector3.zero) {
-                        viewPoints.Add(e.MaxPoint);
-                    }
+            if (i > 0 && info.HitTransform != prevInfo.HitTransform) {
+                edgeInfo e = DetectEdge(prevInfo, info);
+                if (e.MinPoint != Vector3.zero) {
+                    viewPoints.Add(e.MinPoint);
                 }
-                viewPoints.Add(hit.point);
+                if (e.MaxPoint != Vector3.zero) {
+                    viewPoints.Add(e.MaxPoint);
+                }
             }
-            else {
-                viewPoints.Add(transform.position + GetDirection(a) * viewRadius);
-            }
+
+            viewPoints.Add(info.Point);
+
             prevInfo = info;
         }
 
@@ -96,18 +92,28 @@ public class View : MonoBehaviour {
         Vector3 maxPoint = max.Point;
         for (int i = 0; i < edgeDetectionIterations; i++) {
             float a = (minAngle + maxAngle) / 2;
-            if (Physics.Raycast(transform.position, GetDirection(a), out RaycastHit hit, viewRadius, obstacle)) {
-                if (min.HitTransform == hit.transform) {
-                    minAngle = a;
-                    minPoint = hit.point;
-                }
-                else if (max.HitTransform == hit.transform) {
-                    maxAngle = a;
-                    maxPoint = hit.point;
-                }
+
+            viewPointInfo info = ViewCast(a);
+
+            if (info.HitTransform == minTransform) {
+                minAngle = a;
+                minPoint = info.Point;
+            }
+            else if (info.HitTransform == maxTransform) {
+                maxAngle = a;
+                maxPoint = info.Point;
             }
         }
         return new edgeInfo(minPoint, maxPoint);
+    }
+
+    viewPointInfo ViewCast(float angle) {
+        if (Physics.Raycast(transform.position, GetDirection(angle), out RaycastHit hit, viewRadius, obstacle)) {
+            return new viewPointInfo(angle, hit.transform, hit.point);
+        }
+        else {
+            return new viewPointInfo(angle, null, GetDirection(angle) * viewRadius + transform.position);   
+        }
     }
 
     Vector3 GetDirection(float angle) {
