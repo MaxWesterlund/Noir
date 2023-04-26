@@ -8,6 +8,8 @@ public class PlayerMovement : MonoBehaviour {
 
     [SerializeField] InputActionAsset controls;
 
+    [SerializeField] LayerMask ground;
+
     [SerializeField] float moveSpeed;
     
     Camera cam;
@@ -44,9 +46,12 @@ public class PlayerMovement : MonoBehaviour {
 
     void Look() {
         Vector2 lookInput = lookAction.ReadValue<Vector2>();
-        Vector3 mousePos = cam.ScreenToWorldPoint(lookInput);
-        mousePos.y = 0;
+        Ray camRay = cam.ScreenPointToRay(lookInput);
+        Vector3 cursorPos = Vector3.zero;
+        if (Physics.Raycast(camRay.origin, camRay.direction, out RaycastHit hit, Mathf.Infinity, ground)) {
+            cursorPos = hit.point;
+        }
         
-        transform.LookAt(mousePos + Vector3.up * transform.position.y);
+        transform.LookAt(cursorPos + Vector3.up * transform.position.y);
     }
 }
