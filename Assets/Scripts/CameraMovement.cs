@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class CameraMovement : MonoBehaviour {
-    [SerializeField] InputActionAsset controls;
-
     [SerializeField] LayerMask ground;
 
     [SerializeField] Transform player;
@@ -19,21 +17,13 @@ public class CameraMovement : MonoBehaviour {
 
     Camera cam;
 
-    InputAction lookAction;
-
-    void OnEnable() {
-        controls.Enable();
-    }
-
     void Start() {
         cam = Camera.main;
-        
-        lookAction = controls.FindAction("Look");
     }
 
     void FixedUpdate() {
         Vector3 positionA = new Vector3(player.position.x, 0, player.position.z);
-        Ray camRay = cam.ScreenPointToRay(lookAction.ReadValue<Vector2>());
+        Ray camRay = cam.ScreenPointToRay(InputManager.Instance.Look.ReadValue<Vector2>());
         Vector3 cursorPos = Vector3.zero;
         if (Physics.Raycast(camRay.origin, camRay.direction, out RaycastHit hit, Mathf.Infinity, ground)) {
             cursorPos = hit.point;
