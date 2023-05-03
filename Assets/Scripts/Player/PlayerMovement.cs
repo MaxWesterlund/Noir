@@ -12,9 +12,12 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] Transform body;
     [SerializeField] Transform legs;
 
-    [Header("Speeds")]
+    [Header("Speed")]
     [SerializeField] float moveSpeed;
+    [SerializeField] float acceleration;
     [SerializeField] float rotationSpeed;
+
+    [Header("Rotation")]
     [SerializeField] float bodyRotationSpeed;
     [SerializeField] float headRotationSpeed;
 
@@ -43,7 +46,7 @@ public class PlayerMovement : MonoBehaviour {
         Vector2 moveInput = InputManager.Instance.Move.ReadValue<Vector2>();
         Vector3 moveVec = new Vector3(moveInput.x, 0, moveInput.y);
 
-        rb.velocity = moveVec * moveSpeed;
+        rb.velocity = Vector3.Lerp(rb.velocity, moveVec * moveSpeed, acceleration * Time.deltaTime);
     }
 
     void Rotate() {
