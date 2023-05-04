@@ -20,7 +20,6 @@ public class MapGeneration : MonoBehaviour {
 
     async void Generate() {
         await GenerateRooms();
-        await GenerateConnections();
     }
 
     async Task GenerateRooms() {
@@ -32,8 +31,12 @@ public class MapGeneration : MonoBehaviour {
             if (grid[xi, zi]) {
                 continue;
             }
-            
-            Vector3Int size = FindSize(new Vector3Int(xi, 0, zi));
+
+            Vector3Int size = FindRoomSize(new Vector3Int(xi, 0, zi));
+            while (size == Vector3Int.zero) {
+                size = FindRoomSize(new Vector3Int(xi, 0, zi));
+            }
+
             for (int x = 0; x < size.x; x++) {
                 for (int y = 0; y < size.z; y++) {
                     grid[xi + x, zi + y] = true;
@@ -42,33 +45,29 @@ public class MapGeneration : MonoBehaviour {
 
             rooms.Add(new Room(size, new Vector3Int(xi, 0, zi)));
 
-            await Task.Delay(100);
+            await Task.Yield();
         }
     }
 
     async Task GenerateConnections() {
-        
+        foreach (Room room in rooms) {
+
+        }
     }
 
-    Vector3Int FindSize(Vector3Int position, bool found = false) {
-        Vector3Int size = Vector3Int.zero;
-        while (!found) {
-            found = true;
-            size = new Vector3Int(
-                Random.Range(1, maxRoomSize + 1),
-                0,
-                Random.Range(1, maxRoomSize + 1)
-            );
-            if (position.x + size.x >= mapSize.x || position.z + size.z >= mapSize.y) {
-                found = false;
-                continue;
-            } 
-            for (int x = 0; x < size.x; x++) {
-                for (int z = 0; z < size.z; z++) {
-                    if (grid[position.x + x, position.z + z]) {
-                        found = false;
-                        break;
-                    }
+    Vector3Int FindRoomSize(Vector3Int position) {
+        Vector3Int size = new Vector3Int(
+            Random.Range(1, maxRoomSize + 1),
+            0,
+            Random.Range(1, maxRoomSize + 1)
+        );
+        for (int x = 0; x < size.x; x++) {
+            for (int z = 0; z < size.z; z++) {
+                if (position.x + x >= mapSize.x - 2 || position.z + z >= mapSize.y - 2) {
+                    return Vector3Int.zero;
+                }
+                else if (grid[position.x + x, position.z + z]) {
+                    return Vector3Int.zero;
                 }
             }
         }
@@ -76,12 +75,24 @@ public class MapGeneration : MonoBehaviour {
     }
 
     Room[] FindAdjacentRooms(Room targetRoom) {
+        List<Room> adjacents = new();
+
+        List<Vector3> checkPosition = new();
+
+        for (int x = 0; x < targetRoom.Size.x + 2; x++) {
+            for (int z = 0; z < targetRoom.Size.z + 2; z++) {
+
+            }
+        }
+
         foreach (Room room in rooms) {
             if (room == targetRoom) {
                 continue;
             }
+
+
         }
-        return null;
+        return adjacents.ToArray();
     }
 
     struct connection {
