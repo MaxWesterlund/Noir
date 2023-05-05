@@ -244,9 +244,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb50c89bd854154d9db3b0a69b8bd1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: {x: 10, y: 10}
-  maxRoomSize: 3
-  bonusBranchChance: 0.1
+  mapSize: {x: 20, y: 20}
+  maxRoomSize: 4
+  bonusBranchChance: 0.15
 --- !u!4 &862694001
 Transform:
   m_ObjectHideFlags: 0
