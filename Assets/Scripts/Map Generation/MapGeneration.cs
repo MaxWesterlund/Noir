@@ -6,12 +6,13 @@ using UnityEngine;
 public class MapGeneration : MonoBehaviour {
     [SerializeField] Vector2Int mapSize;
     [SerializeField] int maxRoomSize;
+    [SerializeField] float bonusBranchChance;
     
     bool[,] grid;
 
     List<Room> rooms = new();
 
-    connection[] connections;
+    List<connection> connections = new();
 
     void Start() {
         grid = new bool[mapSize.x, mapSize.y];
@@ -20,6 +21,8 @@ public class MapGeneration : MonoBehaviour {
 
     async void Generate() {
         await GenerateRooms();
+        await GenerateConnections();
+        await FindMST();
     }
 
     async Task GenerateRooms() {
@@ -51,7 +54,52 @@ public class MapGeneration : MonoBehaviour {
 
     async Task GenerateConnections() {
         foreach (Room room in rooms) {
+            room.AdjacentRooms = FindAdjacentRooms(room);
+            await Task.Yield();
+        }
+    }
 
+    async Task FindMST() {
+        List<Room> notIncluded = new();
+        foreach (Room r in rooms) {
+            notIncluded.Add(r);
+        }
+        List<Room> included = new();
+        Room currentRoom = rooms[Random.Range(0, rooms.Count)];
+        included.Add(currentRoom);
+        notIncluded.Remove(currentRoom);
+
+        while (notIncluded.Count > 0) {
+            Room nextRoom = null;
+            float minWeight = Mathf.Infinity;
+            foreach (Room incRoom in included) {
+                foreach (Room adjRoom in incRoom.AdjacentRooms) {
+                    if (included.Contains(adjRoom)) {
+                        continue;
+                    }
+
+                    float weight = Vector3.Distance(incRoom.Position, adjRoom.Position);
+                    if (weight < minWeight) {
+                        nextRoom = adjRoom;
+                        minWeight = weight;
+                        currentRoom = incRoom;
+                    }
+                }
+            }
+
+            if (nextRoom == null) {
+                continue;
+            }
+
+            connections.Add(new connection(currentRoom, nextRoom));
+            
+            notIncluded.Remove(nextRoom);
+            included.Add(nextRoom);
+            currentRoom = nextRoom;
+            
+            print(notIncluded.Count);
+
+            await Task.Delay(100);
         }
     }
 
@@ -63,7 +111,7 @@ public class MapGeneration : MonoBehaviour {
         );
         for (int x = 0; x < size.x; x++) {
             for (int z = 0; z < size.z; z++) {
-                if (position.x + x >= mapSize.x - 2 || position.z + z >= mapSize.y - 2) {
+                if (position.x + x >= mapSize.x || position.z + z >= mapSize.y) {
                     return Vector3Int.zero;
                 }
                 else if (grid[position.x + x, position.z + z]) {
@@ -77,21 +125,42 @@ public class MapGeneration : MonoBehaviour {
     Room[] FindAdjacentRooms(Room targetRoom) {
         List<Room> adjacents = new();
 
-        List<Vector3> checkPosition = new();
+        List<Vector3> checkPositions = new();
 
-        for (int x = 0; x < targetRoom.Size.x + 2; x++) {
-            for (int z = 0; z < targetRoom.Size.z + 2; z++) {
+        int xMin = Mathf.FloorToInt(targetRoom.Position.x - targetRoom.Size.x / 2) - 1;
+        int xMax = Mathf.CeilToInt(targetRoom.Position.x + targetRoom.Size.x / 2);
 
+        int zMin = Mathf.FloorToInt(targetRoom.Position.z - targetRoom.Size.z / 2) - 1;
+        int zMax = Mathf.CeilToInt(targetRoom.Position.z + targetRoom.Size.z / 2);
+
+        for (int x = xMin; x <= xMax; x++) {
+            for (int z = zMin; z <= zMax; z++) {
+                if (x == xMax && z == zMax) {
+                    continue;
+                }
+                checkPositions.Add(new Vector3(x, 0, z));
             }
         }
+        
 
         foreach (Room room in rooms) {
             if (room == targetRoom) {
                 continue;
             }
-
-
+            for (int x = Mathf.FloorToInt(room.Position.x - room.Size.x / 2); x < Mathf.CeilToInt(room.Position.x + room.Size.x / 2); x++) {
+                for (int z = Mathf.FloorToInt(room.Position.z - room.Size.z / 2); z < Mathf.CeilToInt(room.Position.z + room.Size.z / 2); z++) {
+                    if (adjacents.Contains(room)) {
+                        break;
+                    }
+                    Vector3 position = new Vector3(x, 0, z);
+                    if (checkPositions.Contains(position)) {
+                        adjacents.Add(room);
+                        break;
+                    }
+                }
+            }
         }
+        
         return adjacents.ToArray();
     }
 
@@ -106,22 +175,18 @@ public class MapGeneration : MonoBehaviour {
     }
 
     void OnDrawGizmos() {
-        for (int x = 0; x < mapSize.x; x++) {
-            for (int y = 0; y < mapSize.y; y++) {
-                if (grid[x, y]) {
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawCube(new Vector3(x + .5f, 0, y + .5f), new Vector3(1, 0, 1));
-                }
-                else {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawCube(new Vector3(x + .5f, 0, y + .5f), new Vector3(1, 0, 1));
-                }
-            }
-        }
-        
-        Gizmos.color = Color.white;
         foreach (Room room in rooms) {
+            float grayNess = Random.Range(0f, 1f);
+            Gizmos.color = room.TempColor;
+            Gizmos.DrawCube(room.Position, room.Size);
+
+            Gizmos.color = Color.black;
             Gizmos.DrawWireCube(room.Position, room.Size);
+        }
+
+        Gizmos.color = Color.blue;
+        foreach (connection con in connections) {
+            Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
         }
     }
 }

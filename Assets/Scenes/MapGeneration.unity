@@ -246,6 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: {x: 10, y: 10}
   maxRoomSize: 3
+  bonusBranchChance: 0.1
 --- !u!4 &862694001
 Transform:
   m_ObjectHideFlags: 0
