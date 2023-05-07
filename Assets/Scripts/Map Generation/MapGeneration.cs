@@ -104,8 +104,6 @@ public class MapGeneration : MonoBehaviour {
             notIncluded.Remove(nextRoom);
             included.Add(nextRoom);
             currentRoom = nextRoom;
-            
-            print(notIncluded.Count);
 
             await Task.Yield();
         }
@@ -122,7 +120,6 @@ public class MapGeneration : MonoBehaviour {
                     }
                 }
                 if (!connectionExists) {
-                    print("existed");
                     connections.Add(tCon);
                 }
             }

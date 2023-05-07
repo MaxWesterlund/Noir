@@ -245,7 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSize: {x: 20, y: 20}
-  maxRoomSize: 4
+  maxRoomSize: 5
   bonusBranchChance: 0.15
 --- !u!4 &862694001
 Transform:
