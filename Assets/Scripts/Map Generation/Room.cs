@@ -6,7 +6,6 @@ public class Room {
     public Vector3Int Size;
     public Vector3 Position;
     public Room[] AdjacentRooms;
-    public Color TempColor;
 
     public Room(Vector3Int size, Vector3Int position) {
         Size = size;
@@ -15,8 +14,5 @@ public class Room {
             0,
             position.z + (float)size.z / 2
         );
-
-        float grayNess = Random.Range(.5f, 1f);
-        TempColor = new Color(grayNess, grayNess, grayNess);
     }
 }

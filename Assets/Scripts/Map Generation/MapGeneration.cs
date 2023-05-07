@@ -7,6 +7,8 @@ public class MapGeneration : MonoBehaviour {
     [SerializeField] Vector2Int mapSize;
     [SerializeField] int maxRoomSize;
     [SerializeField] float bonusBranchChance;
+
+    [SerializeField] GameObject wall;
     
     bool[,] grid;
 
@@ -25,6 +27,7 @@ public class MapGeneration : MonoBehaviour {
         await GenerateConnections();
         await FindMST();
         await AddBonusBranches();
+        await GenerateWalls();
         print("Generation Done.");
     }
 
@@ -80,17 +83,17 @@ public class MapGeneration : MonoBehaviour {
         while (notIncluded.Count > 0) {
             Room nextRoom = null;
             float minWeight = Mathf.Infinity;
-            foreach (Room incRoom in included) {
-                foreach (Room adjRoom in incRoom.AdjacentRooms) {
+            foreach (Room room in included) {
+                foreach (Room adjRoom in room.AdjacentRooms) {
                     if (included.Contains(adjRoom)) {
                         continue;
                     }
 
-                    float weight = Vector3.Distance(incRoom.Position, adjRoom.Position);
+                    float weight = Vector3.Distance(room.Position, adjRoom.Position);
                     if (weight < minWeight) {
                         nextRoom = adjRoom;
                         minWeight = weight;
-                        currentRoom = incRoom;
+                        currentRoom = room;
                     }
                 }
             }
@@ -124,6 +127,44 @@ public class MapGeneration : MonoBehaviour {
                 }
             }
             await Task.Yield();
+        }
+    }
+
+    async Task GenerateWalls() {
+        foreach (Room room in rooms) {
+            for (int x1 = 0; x1 < room.Size.x; x1++) {
+                Vector3 position = new Vector3(
+                    room.Position.x - room.Size.x / 2 + x1,
+                    0,
+                    room.Position.z + room.Size.z / 2
+                );
+                Instantiate(wall, position, Quaternion.Euler(0, 90, 0));
+            }
+            for (int x2 = 0; x2 < room.Size.x; x2++) {
+                Vector3 position = new Vector3(
+                    room.Position.x - room.Size.x / 2 + x2,
+                    0,
+                    room.Position.z - room.Size.z / 2
+                );
+                Instantiate(wall, position, Quaternion.Euler(0, 270, 0));
+            }
+            for (int z1 = 0; z1 < room.Size.z; z1++) {
+                Vector3 position = new Vector3(
+                    room.Position.x - room.Size.x / 2,
+                    0,
+                    room.Position.z - room.Size.z / 2 + z1
+                );
+                Instantiate(wall, position, Quaternion.Euler(0, 0, 0));
+            }
+            for (int z2 = 0; z2 < room.Size.z; z2++) {
+                Vector3 position = new Vector3(
+                    room.Position.x + room.Size.x / 2,
+                    0,
+                    room.Position.z - room.Size.z / 2 + z2
+                );
+                Instantiate(wall, position, Quaternion.Euler(0, 180, 0));
+            }
+            await Task.Delay(100);
         }
     }
 
@@ -166,7 +207,6 @@ public class MapGeneration : MonoBehaviour {
             }
         }
         
-
         foreach (Room room in rooms) {
             if (room == targetRoom) {
                 continue;
@@ -201,7 +241,7 @@ public class MapGeneration : MonoBehaviour {
     void OnDrawGizmos() {
         foreach (Room room in rooms) {
             float grayNess = Random.Range(0f, 1f);
-            Gizmos.color = room.TempColor;
+            Gizmos.color = Color.white;
             Gizmos.DrawCube(room.Position, room.Size);
 
             Gizmos.color = Color.black;

@@ -247,6 +247,7 @@ MonoBehaviour:
   mapSize: {x: 20, y: 20}
   maxRoomSize: 5
   bonusBranchChance: 0.15
+  wall: {fileID: 934391980324683247, guid: 90bf838fb0255dd45867605681a7d619, type: 3}
 --- !u!4 &862694001
 Transform:
   m_ObjectHideFlags: 0
