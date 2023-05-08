@@ -12,6 +12,7 @@ public class MapGeneration : MonoBehaviour {
 
     [SerializeField] GameObject wall;
     [SerializeField] GameObject door;
+    [SerializeField] GameObject floor;
     
     bool[,] grid;
 
@@ -20,18 +21,19 @@ public class MapGeneration : MonoBehaviour {
     List<connection> tempConnections = new();
     List<connection> connections = new();
 
-    void Start() {
-        grid = new bool[mapSize.x, mapSize.y];
-        Generate();
-    }
+    public delegate void onFinished();
+    public onFinished OnFinished;
 
-    async void Generate() {
+    public async void Generate() {
+        grid = new bool[mapSize.x, mapSize.y];
         await GenerateRooms();
         await GenerateConnections();
         await FindMST();
         await AddBonusBranches();
         await GenerateWalls();
-        print("Generation Done.");
+        await GenerateFloor();
+        await GenerateSpawn();
+        OnFinished?.Invoke();
     }
 
     async Task GenerateRooms() {
@@ -247,6 +249,24 @@ public class MapGeneration : MonoBehaviour {
                 await Task.Yield();
             }
         }
+    }
+
+    async Task GenerateFloor() {
+        Vector3 position = new Vector3((float)mapSize.x / 2, 0, (float)mapSize.y / 2);
+        Vector3 scale = new Vector3(mapSize.x, floor.transform.localScale.y, mapSize.y);
+
+        GameObject obj = Instantiate(floor, position, Quaternion.identity);
+        obj.transform.localScale = scale;
+
+        await Task.Yield();
+    }
+
+    async Task GenerateSpawn() {
+        Room spawnRoom = rooms[Random.Range(0, rooms.Count)];
+        GameObject obj = new GameObject("Spawn");
+        obj.transform.position = spawnRoom.Position;
+
+        await Task.Yield();
     }
 
     Vector3Int FindRoomSize(Vector3Int position) {

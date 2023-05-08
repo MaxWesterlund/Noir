@@ -33,6 +33,8 @@ public class PlayerMovement : MonoBehaviour {
 
     void Start() {
         cam = Camera.main;
+
+        GameManager.Instance.MapGenerated += OnMapGenerated;
     }
 
     void Update() {
@@ -40,6 +42,10 @@ public class PlayerMovement : MonoBehaviour {
         Rotate();
         HeadRotation();
         BodyRotation();
+    }
+
+    void OnMapGenerated() {
+        transform.position = GameObject.Find("Spawn").transform.position;
     }
 
     void Move() {
