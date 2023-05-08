@@ -54,7 +54,6 @@ public class MapGeneration : MonoBehaviour {
                     grid[xi + x, zi + y] = true;
                 }
             }
-
             rooms.Add(new Room(size, new Vector3Int(xi, 0, zi)));
 
             await Task.Yield();
