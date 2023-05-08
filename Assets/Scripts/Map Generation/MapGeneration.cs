@@ -134,6 +134,7 @@ public class MapGeneration : MonoBehaviour {
 
     async Task GenerateWalls() {
         Vector2Int[,] wallGrid = new Vector2Int[mapSize.x + 1, mapSize.y + 1];
+
         foreach (Room room in rooms) {
             for (int x1 = 0; x1 < room.Size.x; x1++) {
                 Vector3Int position = new Vector3Int(
@@ -187,45 +188,62 @@ public class MapGeneration : MonoBehaviour {
                 }
             }
 
-            print(commonWalls.Count);
             Vector3Int wall = commonWalls[Random.Range(0, commonWalls.Count)];
-            wallGrid[wall.x, wall.z] *= 10;
+
+            Vector2Int direction = Vector2Int.right;
+            for (int i = Mathf.RoundToInt(a.Position.x - a.Size.x / 2); i < Mathf.RoundToInt(a.Position.x + a.Size.x / 2); i++) {
+                for (int j = Mathf.RoundToInt(b.Position.x - b.Size.x / 2); j < Mathf.RoundToInt(b.Position.x + b.Size.x / 2); j++) {
+                    if (i == j) {
+                        direction = Vector2Int.up;
+                    }
+                }
+            }
+
+            wallGrid[wall.x, wall.z] += direction * 10;
         }
+
+        GameObject parent = new GameObject("Walls");
 
         for (int x = 0; x < mapSize.x + 1; x++) {
             for (int y = 0; y < mapSize.y + 1; y++) {
+                List<GameObject> instantiated = new();
                 switch (wallGrid[x, y].x) {
                     case 1:
-                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0)));
                         break;
                     case 2:
-                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0)));
                         break;
                     case 3:
-                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
-                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0)));
+                        instantiated.Add(Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0)));
                         break;
                     case > 3:
-                        Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
-                        Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        instantiated.Add(Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0)));
+                        instantiated.Add(Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0)));
                         break;
                 }
                 switch (wallGrid[x, y].y) {
                     case 1:
-                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0)));
                         break;
                     case 2:
-                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0)));
                         break;
                     case 3:
-                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
-                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        instantiated.Add(Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0)));
+                        instantiated.Add(Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0)));
                         break;
                     case > 3:
-                        Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
-                        Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        instantiated.Add(Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0)));
+                        instantiated.Add(Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0)));
                         break;
                 }
+
+                foreach (GameObject obj in instantiated) {
+                    obj.transform.parent = parent.transform;
+                }
+
                 await Task.Yield();
             }
         }
@@ -319,11 +337,6 @@ public class MapGeneration : MonoBehaviour {
         Gizmos.color = new Color32(12, 247, 213, 255);
         foreach (connection con in connections) {
             Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
-        }
-
-        Gizmos.color = Color.blue;
-        foreach (Vector3Int vec in rooms[debugIndex].Walls) {
-            Gizmos.DrawSphere(vec, .3f);
         }
     }
 }
