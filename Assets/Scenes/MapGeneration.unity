@@ -244,10 +244,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbb50c89bd854154d9db3b0a69b8bd1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: {x: 20, y: 20}
+  mapSize: {x: 10, y: 10}
   maxRoomSize: 5
-  bonusBranchChance: 0.15
+  bonusBranchChance: 0.1
+  debugIndex: 0
   wall: {fileID: 934391980324683247, guid: 90bf838fb0255dd45867605681a7d619, type: 3}
+  door: {fileID: 934391980324683247, guid: 3eaf67b8afa67c8478be5a4a85dff6d6, type: 3}
 --- !u!4 &862694001
 Transform:
   m_ObjectHideFlags: 0

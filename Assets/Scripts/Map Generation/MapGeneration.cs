@@ -8,7 +8,10 @@ public class MapGeneration : MonoBehaviour {
     [SerializeField] int maxRoomSize;
     [SerializeField] float bonusBranchChance;
 
+    [SerializeField] int debugIndex;
+
     [SerializeField] GameObject wall;
+    [SerializeField] GameObject door;
     
     bool[,] grid;
 
@@ -131,40 +134,101 @@ public class MapGeneration : MonoBehaviour {
     }
 
     async Task GenerateWalls() {
+        Vector2Int[,] wallGrid = new Vector2Int[mapSize.x + 1, mapSize.y + 1];
         foreach (Room room in rooms) {
             for (int x1 = 0; x1 < room.Size.x; x1++) {
-                Vector3 position = new Vector3(
-                    room.Position.x - room.Size.x / 2 + x1,
+                Vector3Int position = new Vector3Int(
+                    Mathf.RoundToInt(room.Position.x - room.Size.x / 2 + x1),
                     0,
-                    room.Position.z + room.Size.z / 2
+                    Mathf.RoundToInt(room.Position.z + room.Size.z / 2)
                 );
-                Instantiate(wall, position, Quaternion.Euler(0, 90, 0));
+                wallGrid[position.x, position.z] += new Vector2Int(0, 1);
+                room.Walls.Add(position);
             }
             for (int x2 = 0; x2 < room.Size.x; x2++) {
-                Vector3 position = new Vector3(
-                    room.Position.x - room.Size.x / 2 + x2,
+                Vector3Int position = new Vector3Int(
+                    Mathf.RoundToInt(room.Position.x - room.Size.x / 2 + x2),
                     0,
-                    room.Position.z - room.Size.z / 2
+                    Mathf.RoundToInt(room.Position.z - room.Size.z / 2)
                 );
-                Instantiate(wall, position, Quaternion.Euler(0, 270, 0));
+                wallGrid[position.x, position.z] += new Vector2Int(0, 2);
+                room.Walls.Add(position);
             }
             for (int z1 = 0; z1 < room.Size.z; z1++) {
-                Vector3 position = new Vector3(
-                    room.Position.x - room.Size.x / 2,
+                Vector3Int position = new Vector3Int(
+                    Mathf.RoundToInt(room.Position.x - room.Size.x / 2),
                     0,
-                    room.Position.z - room.Size.z / 2 + z1
+                    Mathf.RoundToInt(room.Position.z - room.Size.z / 2 + z1)
                 );
-                Instantiate(wall, position, Quaternion.Euler(0, 0, 0));
+                wallGrid[position.x, position.z] += new Vector2Int(1, 0);
+                room.Walls.Add(position);
             }
             for (int z2 = 0; z2 < room.Size.z; z2++) {
-                Vector3 position = new Vector3(
-                    room.Position.x + room.Size.x / 2,
+                Vector3Int position = new Vector3Int(
+                    Mathf.RoundToInt(room.Position.x + room.Size.x / 2),
                     0,
-                    room.Position.z - room.Size.z / 2 + z2
+                    Mathf.RoundToInt(room.Position.z - room.Size.z / 2 + z2)
                 );
-                Instantiate(wall, position, Quaternion.Euler(0, 180, 0));
+                wallGrid[position.x, position.z] += new Vector2Int(2, 0);
+                room.Walls.Add(position);
             }
-            await Task.Delay(100);
+        }
+
+        foreach (connection con in connections) {
+            Room a = con.RoomA.Position.x < con.RoomB.Position.x ? con.RoomA : con.RoomB;
+            Room b = con.RoomA.Position.x < con.RoomB.Position.x ? con.RoomB : con.RoomA;
+
+            List<Vector3Int> commonWalls = new();
+
+            foreach (Vector3Int aWall in a.Walls) {
+                foreach (Vector3Int bWall in b.Walls) {
+                    if (aWall == bWall) {
+                        commonWalls.Add(aWall);
+                    }
+                }
+            }
+
+            print(commonWalls.Count);
+            Vector3Int wall = commonWalls[Random.Range(0, commonWalls.Count)];
+            wallGrid[wall.x, wall.z] *= 10;
+        }
+
+        for (int x = 0; x < mapSize.x + 1; x++) {
+            for (int y = 0; y < mapSize.y + 1; y++) {
+                switch (wallGrid[x, y].x) {
+                    case 1:
+                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
+                        break;
+                    case 2:
+                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        break;
+                    case 3:
+                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
+                        Instantiate(wall, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        break;
+                    case > 3:
+                        Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 0, 0));
+                        Instantiate(door, new Vector3(x, 0, y + .5f), Quaternion.Euler(0, 180, 0));
+                        break;
+                }
+                switch (wallGrid[x, y].y) {
+                    case 1:
+                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
+                        break;
+                    case 2:
+                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        break;
+                    case 3:
+                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
+                        Instantiate(wall, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        break;
+                    case > 3:
+                        Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 90, 0));
+                        Instantiate(door, new Vector3(x + .5f, 0, y), Quaternion.Euler(0, 270, 0));
+                        break;
+                }
+                await Task.Yield();
+            }
         }
     }
 
@@ -256,6 +320,11 @@ public class MapGeneration : MonoBehaviour {
         Gizmos.color = new Color32(12, 247, 213, 255);
         foreach (connection con in connections) {
             Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
+        }
+
+        Gizmos.color = Color.blue;
+        foreach (Vector3Int vec in rooms[debugIndex].Walls) {
+            Gizmos.DrawSphere(vec, .3f);
         }
     }
 }
