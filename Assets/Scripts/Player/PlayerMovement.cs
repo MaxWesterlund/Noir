@@ -50,6 +50,7 @@ public class PlayerMovement : MonoBehaviour {
 
     void Move() {
         Vector2 moveInput = InputManager.Instance.Move.ReadValue<Vector2>();
+
         Vector3 moveVec = new Vector3(moveInput.x, 0, moveInput.y);
 
         rb.velocity = Vector3.Lerp(rb.velocity, moveVec * moveSpeed, acceleration * Time.deltaTime);

@@ -94,12 +94,14 @@ public class View : MonoBehaviour {
             float a = (minAngle + maxAngle) / 2;
 
             viewPointInfo info = ViewCast(a);
-
-            if (info.HitTransform == minTransform) {
+            if (info.HitTransform == null || minTransform == null || maxTransform == null) {
+                continue;
+            }
+            if (info.HitTransform.position == minTransform.position) {
                 minAngle = a;
                 minPoint = info.Point;
             }
-            else if (info.HitTransform == maxTransform) {
+            else if (info.HitTransform.position == maxTransform.position) {
                 maxAngle = a;
                 maxPoint = info.Point;
             }

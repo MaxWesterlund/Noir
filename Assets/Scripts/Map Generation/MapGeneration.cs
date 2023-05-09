@@ -25,6 +25,7 @@ public class MapGeneration : MonoBehaviour {
     public onFinished OnFinished;
 
     public async void Generate() {
+        print("Generation Started");
         grid = new bool[mapSize.x, mapSize.y];
         await GenerateRooms();
         await GenerateConnections();
@@ -34,6 +35,7 @@ public class MapGeneration : MonoBehaviour {
         await GenerateFloor();
         await GenerateSpawn();
         OnFinished?.Invoke();
+        print("Generation Finished");
     }
 
     async Task GenerateRooms() {
@@ -301,7 +303,7 @@ public class MapGeneration : MonoBehaviour {
 
         for (int x = xMin; x <= xMax; x++) {
             for (int z = zMin; z <= zMax; z++) {
-                if (x == xMax && z == zMax) {
+                if (x == xMax && z == zMax || x == xMin && z == zMin || x == xMin && z == zMax || x == xMax && z == zMin) {
                     continue;
                 }
                 checkPositions.Add(new Vector3(x, 0, z));
@@ -339,24 +341,24 @@ public class MapGeneration : MonoBehaviour {
         }
     }
 
-    void OnDrawGizmos() {
-        foreach (Room room in rooms) {
-            float grayNess = Random.Range(0f, 1f);
-            Gizmos.color = Color.white;
-            Gizmos.DrawCube(room.Position, room.Size);
+    // void OnDrawGizmos() {
+    //     foreach (Room room in rooms) {
+    //         float grayNess = Random.Range(0f, 1f);
+    //         Gizmos.color = Color.white;
+    //         Gizmos.DrawCube(room.Position, room.Size);
 
-            Gizmos.color = Color.black;
-            Gizmos.DrawWireCube(room.Position, room.Size);
-        }
+    //         Gizmos.color = Color.black;
+    //         Gizmos.DrawWireCube(room.Position, room.Size);
+    //     }
 
-        Gizmos.color = new Color32(43, 84, 78, 255);
-        foreach (connection con in tempConnections) {
-            Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
-        }
+    //     Gizmos.color = new Color32(43, 84, 78, 255);
+    //     foreach (connection con in tempConnections) {
+    //         Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
+    //     }
 
-        Gizmos.color = new Color32(12, 247, 213, 255);
-        foreach (connection con in connections) {
-            Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
-        }
-    }
+    //     Gizmos.color = new Color32(12, 247, 213, 255);
+    //     foreach (connection con in connections) {
+    //         Gizmos.DrawLine(con.RoomA.Position, con.RoomB.Position);
+    //     }
+    // }
 }

@@ -123,10 +123,10 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!4 &383249613 stripped
+--- !u!4 &223324175 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
-  m_PrefabInstance: {fileID: 1609079052}
+  m_PrefabInstance: {fileID: 1271180923}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &621843010
 GameObject:
@@ -236,8 +236,8 @@ MonoBehaviour:
   ground:
     serializedVersion: 2
     m_Bits: 64
-  player: {fileID: 383249613}
-  height: 5
+  player: {fileID: 223324175}
+  height: 2
   moveSpeed: 2
   positionInterpolationValue: 0.2
 --- !u!1 &1172979156
@@ -412,7 +412,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1001 &1609079052
+--- !u!1001 &1271180923
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -425,24 +425,12 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 566959200708109725, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
       propertyPath: m_LocalPosition.z
@@ -479,6 +467,18 @@ PrefabInstance:
     - target: {fileID: 1454115921398523049, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2033354832098912935, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
+      propertyPath: moveSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2033354832098912935, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
+      propertyPath: acceleration
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4655845275354229114, guid: a5082ffeebe5a0343806e41e8e9bcf54, type: 3}
+      propertyPath: edgeDetectionIterations
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
