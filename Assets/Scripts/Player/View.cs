@@ -15,7 +15,6 @@ public class View : MonoBehaviour {
     [Range(0, 360)]
     [SerializeField] int angle;
 
-    [Range(.1f, 1)]
     [SerializeField] float meshDetail;
     [Range(1, 10)]
     [SerializeField] int edgeDetectionIterations;

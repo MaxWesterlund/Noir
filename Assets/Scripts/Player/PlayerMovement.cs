@@ -63,10 +63,7 @@ public class PlayerMovement : MonoBehaviour {
     void HeadRotation() {
         Vector2 lookInput = InputManager.Instance.Look.ReadValue<Vector2>();
         Ray camRay = cam.ScreenPointToRay(lookInput);
-        Vector3 cursorPos = Vector3.zero;
-        if (Physics.Raycast(camRay.origin, camRay.direction, out RaycastHit hit, Mathf.Infinity, ground)) {
-            cursorPos = hit.point;
-        }
+        Vector3 cursorPos = camRay.origin;
 
         cursorPos.y = head.position.y;
 
